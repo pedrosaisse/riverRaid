@@ -1,0 +1,178 @@
+<html>
+	<head>
+		<title>teste</title>
+	</head>
+	
+	<body onLoad="princ()">
+		<canvas id="cvs" width="1000" height="600" style="border:1px solid #000000;"></canvas>
+		<script>
+			var cv = document.getElementById("cvs");
+			var ctxt = cv.getContext("2d");
+			
+			
+			var pontos = 0;
+			
+			var lv = 1;
+			
+			var jogador_x = cv.width / 2;
+			var jogador_y = cv.height * 0.75;
+			var jogador_tam = 80;
+			var jogador_lar = 20;
+			var jogador_vel = 5;
+			var jogador_vida = 100;
+			
+			var mundo_vel = 5;
+			
+			var mundo_velAux = mundo_vel * 1.50;
+			
+			
+			var moveEsq = false;
+			var moveDir = false;
+			var moveCim = false;
+			var moveBaixo = false;
+			var atira = false;
+			
+			var tiro = new Array();
+			var tiro_y = new Array();
+			var tiro_vel = 15;
+			
+			
+			var _keyDown = function(e)
+			{
+				switch (e.keyCode)
+				{		
+					case 37: // seta esquerda
+						moveEsq = true;
+						break;
+						
+					case 38: 
+						moveCim = true;
+						break;
+
+					case 39: // seta direita
+						moveDir = true;
+						break;
+						
+					case 40: 
+						moveBaixo = true;
+						break;
+					
+					case 65:
+						atira = true;
+						break;
+					
+				}
+			}
+
+			var _keyUp = function(e)
+			{
+				switch (e.keyCode)
+				{
+					case 37:
+						moveEsq = false;
+						break;
+						
+					case 38: 
+						moveCim = false;
+						break;
+
+					case 39:
+						moveDir = false;
+						break;
+
+					case 40: 
+						moveBaixo = false;
+						break;
+						
+					case 65:
+						atira = false;
+						break;
+				}				
+			}
+
+			// registrando as funcoes
+			document.addEventListener("keydown", _keyDown, true);
+			document.addEventListener("keyup",   _keyUp,   true);
+			
+			function atzJogador()
+			{
+				if (moveEsq)
+					jogador_x -= jogador_vel;
+				if (moveDir)
+					jogador_x += jogador_vel;
+				if (moveCim)
+					jogador_y -= jogador_vel;
+				if (moveBaixo)
+					jogador_y += jogador_vel;
+
+				if (jogador_x < 5)
+					jogador_x = 5;
+				if (jogador_x > 815)
+					jogador_x = 815;	
+				if (jogador_y <= 20)
+				{
+					mundo_vel = mundo_velAux; //acelera o jogo enquanto o jogador estiver proximo da borda superior
+					jogador_y = 20;
+				}
+				else
+				{
+					mundo_vel = mundo_vel; 
+				}
+				if (jogador_y > 515)
+					jogador_y = 515;				
+			}
+			
+			function posJogador(pos_x,pos_y,tam,lar)
+			{
+				ctxt.fillStyle = "red";
+				ctxt.strokeRect(pos_x,pos_y,lar,tam);
+				ctxt.fillRect(pos_x,pos_y,lar,tam);
+			}
+			
+			function desJogador()
+			{
+				posJogador(jogador_x,jogador_y,jogador_tam,jogador_lar);
+			}
+			
+			
+			function dispara()
+			{
+				if (atira == true)
+					tiro.push((pos_x,pos_y));
+			}
+			
+			function infos()
+			{
+				ctxt.fillStyle = "black";
+				ctxt.strokeRect(840,25,150,200);
+				ctxt.font = "20px Arial";
+				ctxt.fillText("HUD",cvs.width*0.875,50);
+				ctxt.fillText("X:" + jogador_x,850,75);
+				ctxt.fillText("Y:" + jogador_y,850,100);
+				ctxt.fillText("Vida:" + jogador_vida,850,125);
+				ctxt.fillText("Vel Jogador:" + jogador_vel,850,150);
+				ctxt.fillText("Vel Mundo:" + mundo_vel,850,175);
+				ctxt.fillText("Pontos:" + pontos,850,200);
+				
+			}
+			
+			
+			function desenha()
+			{
+				ctxt.clearRect(0, 0, cvs.width, cvs.height);
+				desJogador();
+				dispara();
+				infos();
+			}
+			
+			
+			function princ()
+			{
+				atzJogador();
+				desenha();	
+				setTimeout(princ,1);
+				
+			}
+		</script>
+	</body>
+</html>
