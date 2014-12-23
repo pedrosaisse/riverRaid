@@ -1,3 +1,4 @@
+
 <html>
 	<head>
 		<title>teste</title>
@@ -8,33 +9,34 @@
 		<script>
 			var cv = document.getElementById("cvs");
 			var ctxt = cv.getContext("2d");
+			//var tiro = cv.getContext("2d");
 			
 			
 			var pontos = 0;
 			
-			var lv = 1;
+			var nvlAtual = 1;
+			var totNvls = 10;
 			
 			var jogador_x = cv.width / 2;
-			var jogador_y = cv.height * 0.75;
-			var jogador_tam = 80;
-			var jogador_lar = 20;
+			var jogador_y = cv.height * 0.85;
+			var jogador_tam = 50;
+			var jogador_lar = 15;
 			var jogador_vel = 5;
-			var jogador_vida = 100;
+			var jogador_comb = 100;
 			
-			var mundo_vel = 5;
+			var tiro_x = jogador_x;
+			var tiro_y = jogador_y;
 			
+			var mundo_vel = 5;			
 			var mundo_velAux = mundo_vel * 1.50;
-			
-			
+						
 			var moveEsq = false;
 			var moveDir = false;
 			var moveCim = false;
 			var moveBaixo = false;
 			var atira = false;
 			
-			var tiro = new Array();
-			var tiro_y = new Array();
-			var tiro_vel = 15;
+			var tiro_vel = 0.5;
 			
 			
 			var _keyDown = function(e)
@@ -59,8 +61,10 @@
 					
 					case 65:
 						atira = true;
+						tiro_x = jogador_x;
+						tiro_y = jogador_y;
 						break;
-					
+				
 				}
 			}
 
@@ -82,10 +86,6 @@
 
 					case 40: 
 						moveBaixo = false;
-						break;
-						
-					case 65:
-						atira = false;
 						break;
 				}				
 			}
@@ -109,10 +109,10 @@
 					jogador_x = 5;
 				if (jogador_x > 815)
 					jogador_x = 815;	
-				if (jogador_y <= 20)
+				if (jogador_y <= 10)
 				{
-					mundo_vel = mundo_velAux; //acelera o jogo enquanto o jogador estiver proximo da borda superior
-					jogador_y = 20;
+					//mundo_vel = mundoVel + (mundoVel * nvlAtual / 10); //acelera o jogo enquanto o jogador estiver proximo da borda superior
+					jogador_y = 10;
 				}
 				else
 				{
@@ -134,12 +134,30 @@
 				posJogador(jogador_x,jogador_y,jogador_tam,jogador_lar);
 			}
 			
-			
-			function dispara()
+			function posTiro(pos_x,pos_y)
 			{
-				if (atira == true)
-					tiro.push((pos_x,pos_y));
+				ctxt.fillStyle = "black";
+				ctxt.fillRect(pos_x + 5,pos_y,5,10);
 			}
+			
+			function desTiro()
+			{
+				//tiro_x = jogador_x;
+				posTiro(tiro_x,tiro_y);
+			}
+			
+			function atzTiro()
+			{
+				if (atira)
+					tiro_y -= tiro_vel;
+				if (tiro_y <= 0)
+				{
+					tiro_y = jogador_y;
+					tiro_x = jogador_x;
+					atira = false;
+				}				
+			}
+			
 			
 			function infos()
 			{
@@ -149,7 +167,7 @@
 				ctxt.fillText("HUD",cvs.width*0.875,50);
 				ctxt.fillText("X:" + jogador_x,850,75);
 				ctxt.fillText("Y:" + jogador_y,850,100);
-				ctxt.fillText("Vida:" + jogador_vida,850,125);
+				ctxt.fillText("Comb.:" + jogador_comb,850,125);
 				ctxt.fillText("Vel Jogador:" + jogador_vel,850,150);
 				ctxt.fillText("Vel Mundo:" + mundo_vel,850,175);
 				ctxt.fillText("Pontos:" + pontos,850,200);
@@ -161,14 +179,20 @@
 			{
 				ctxt.clearRect(0, 0, cvs.width, cvs.height);
 				desJogador();
-				dispara();
+				if (atira)
+					desTiro();
 				infos();
 			}
 			
+			function atualiza()
+			{
+				atzJogador();
+				atzTiro();
+			}
 			
 			function princ()
 			{
-				atzJogador();
+				atualiza();
 				desenha();	
 				setTimeout(princ,1);
 				
