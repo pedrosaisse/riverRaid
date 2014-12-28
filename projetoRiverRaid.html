@@ -1,4 +1,5 @@
 
+
 <html>
 	<head>
 		<title>teste</title>
@@ -8,9 +9,10 @@
 		<canvas id="cvs" width="1000" height="600" style="border:1px solid #000000;"></canvas>
 		<script>
 			var cv = document.getElementById("cvs");
-			var ctxt = cv.getContext("2d");
-			//var tiro = cv.getContext("2d");
-			
+			var  ctxt;
+			if (cv.getContext)
+				ctxt = cv.getContext("2d");
+						
 			
 			var pontos = 0;
 			
@@ -18,22 +20,19 @@
 			var totNvls = 10;
 			
 			var jogador_x = cv.width / 2;
-			var jogador_y = cv.height * 0.85;
+			var jogador_y = cv.height * 0.75;
 			var jogador_tam = 50;
 			var jogador_lar = 15;
 			var jogador_vel = 5;
-			var jogador_comb = 100;
+			var jogador_comb = 100.0;
 			
 			var tiro_x = jogador_x;
 			var tiro_y = jogador_y;
 			
-			var mundo_vel = 5;			
-			var mundo_velAux = mundo_vel * 1.50;
-						
+			var mundo_vel = 5;
+									
 			var moveEsq = false;
 			var moveDir = false;
-			var moveCim = false;
-			var moveBaixo = false;
 			var atira = false;
 			
 			var tiro_vel = 5;
@@ -46,17 +45,9 @@
 					case 37: // seta esquerda
 						moveEsq = true;
 						break;
-						
-					case 38: 
-						moveCim = true;
-						break;
 
 					case 39: // seta direita
 						moveDir = true;
-						break;
-						
-					case 40: 
-						moveBaixo = true;
 						break;
 					
 					case 65:
@@ -64,7 +55,6 @@
 						tiro_x = jogador_x;
 						tiro_y = jogador_y;
 						break;
-				
 				}
 			}
 
@@ -75,17 +65,9 @@
 					case 37:
 						moveEsq = false;
 						break;
-						
-					case 38: 
-						moveCim = false;
-						break;
 
 					case 39:
 						moveDir = false;
-						break;
-
-					case 40: 
-						moveBaixo = false;
 						break;
 				}				
 			}
@@ -96,22 +78,23 @@
 			function atzJogador()
 			{
 				if (moveEsq)
+				{
 					jogador_x -= jogador_vel;
+					jogador_comb -= 0.05;
+				}
 				if (moveDir)
+				{
 					jogador_x += jogador_vel;
-				if (moveCim)
-					jogador_y -= jogador_vel;
-				if (moveBaixo)
-					jogador_y += jogador_vel;
+					jogador_comb -= 0.05;
+				}
 
 				if (jogador_x < 5)
+				{
+					moveEsq = false;
 					jogador_x = 5;
+				}
 				if (jogador_x > 815)
-					jogador_x = 815;	
-				if (jogador_y <= 10)
-					jogador_y = 10;
-				if (jogador_y > 515)
-					jogador_y = 515;				
+					jogador_x = 815;				
 			}
 			
 			function posJogador(pos_x,pos_y,tam,lar)
@@ -146,6 +129,32 @@
 
 			}
 			
+			function desOdometro()
+			{
+				ctxt.fillStyle = "black";
+				ctxt.strokeRect(0,515,cvs.width,cvs.height - 515);
+				ctxt.strokeRect(200,525,600,65);
+				ctxt.font = "65px Arial";
+				ctxt.fillText("E",150,580);
+				ctxt.fillText("F",810,580);
+			
+							
+				if (jogador_comb >= 50)
+				{
+					ctxt.fillStyle = "green";
+				}
+				else if ((jogador_comb < 50) && (jogador_comb >= 10))
+				{
+					ctxt.fillStyle = "yellow";
+				}
+				else
+				{
+					ctxt.fillStyle = "red";
+				}
+				
+				ctxt.fillRect(201,526,(jogador_comb * 6) ,63);
+			}
+			
 			
 			function infos()
 			{
@@ -170,6 +179,7 @@
 				if (atira)
 					desTiro();
 				infos();
+				desOdometro();
 			}
 			
 			function atualiza()
