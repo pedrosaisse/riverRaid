@@ -17,6 +17,13 @@
 			var nvlAtual = 1;
 			var totNvls = 10;
 			
+			//dimensao imgJogador 50x55
+			var imgJogador = new Image();
+			imgJogador.src = "aviaoSimples.png";
+			
+			var imgInimigoAviao = new Image();
+			imgInimigoAviao.src = "iniAviaoSimples.png";
+			
 			var jogador_x = cv.width / 2;
 			var jogador_y = cv.height * 0.75;
 			var jogador_tam = 50;
@@ -24,7 +31,10 @@
 			var jogador_vel = 5;
 			var jogador_comb = 100.0;
 			
-			var tiro_x = jogador_x;
+			var inimigos = [];
+			
+			//dimensao imgJogador 50x55
+			var tiro_x = jogador_x + (55 / 2);
 			var tiro_y = jogador_y;
 			
 			var mundo_vel = 0.03;
@@ -74,27 +84,14 @@
 			document.addEventListener("keydown", _keyDown, true);
 			document.addEventListener("keyup",   _keyUp,   true);
 
-			var inimigos = [
-				{
-					cor	  : "black",
-					pos_x : 150,
-					pos_y : 150,
-					tam : 40,
-					lar : 30,
-				}
-			]
-			
+			inimigos = [{img: imgInimigoAviao, pos_x : 150,	pos_y : 150},{img: imgInimigoAviao,pos_x : 250,pos_y : 650}];
 			
 			function desInimigos()
 			{
-				var ini;
-				
 				for (var x=0;x<inimigos.length;x++)
 				{
-					ini = inimigos[x];
-					ctxt.fillStyle = ini.cor;
-					ctxt.fillRect(ini.pos_x,ini.pos_y,ini.tam,ini.lar);
-					console.log(ini);
+					ctxt.drawImage(inimigos[x].img,inimigos[x].pos_x,inimigos[x].pos_y)
+					//console.log(inimigos[x]);
 				}
 			}
 			
@@ -134,22 +131,20 @@
 					jogador_x = 815;				
 			}
 			
-			function posJogador(pos_x,pos_y,tam,lar)
+			function posJogador(pos_x,pos_y,imagem)
 			{
-				ctxt.fillStyle = "red";
-				ctxt.strokeRect(pos_x,pos_y,lar,tam);
-				ctxt.fillRect(pos_x,pos_y,lar,tam);
+				ctxt.drawImage(imagem,pos_x,pos_y);
 			}
 			
 			function desJogador()
 			{
-				posJogador(jogador_x,jogador_y,jogador_tam,jogador_lar);
+				posJogador(jogador_x,jogador_y,imgJogador);
 			}
 			
 			function posTiro(pos_x,pos_y)
 			{
 				ctxt.fillStyle = "black";
-				ctxt.fillRect(pos_x + 5,pos_y,5,10);
+				ctxt.fillRect(pos_x + 23,pos_y,5,10);
 			}
 			
 			function desTiro()
@@ -163,7 +158,6 @@
 					tiro_y -= tiro_vel;
 				if (tiro_y <= 0)
 					atira = false;
-
 			}
 			
 			function desOdometro()
@@ -192,7 +186,6 @@
 				ctxt.fillRect(201,526,(jogador_comb * 6) ,63);
 			}
 			
-			
 			function infos()
 			{
 				ctxt.fillStyle = "black";
@@ -207,7 +200,6 @@
 				ctxt.fillText("Pontos:" + pontos,850,200);
 				
 			}
-			
 			
 			function desenha()
 			{
@@ -231,9 +223,9 @@
 			{
 				atualiza();
 				desenha();	
-				setTimeout(princ,1);
-				
+				setTimeout(princ,1000);
 			}
 		</script>
 	</body>
 </html>
+
