@@ -1,8 +1,6 @@
-
-
 <html>
 	<head>
-		<title>teste</title>
+		<title>River Raid - Javascript</title>
 	</head>
 	
 	<body onLoad="princ()">
@@ -29,7 +27,8 @@
 			var tiro_x = jogador_x;
 			var tiro_y = jogador_y;
 			
-			var mundo_vel = 5;
+			var mundo_vel = 0.03;
+			var inimigo_vel = 0.7;
 									
 			var moveEsq = false;
 			var moveDir = false;
@@ -74,6 +73,44 @@
 
 			document.addEventListener("keydown", _keyDown, true);
 			document.addEventListener("keyup",   _keyUp,   true);
+
+			var inimigos = [
+				{
+					cor	  : "black",
+					pos_x : 150,
+					pos_y : 150,
+					tam : 40,
+					lar : 30,
+				}
+			]
+			
+			
+			function desInimigos()
+			{
+				var ini;
+				
+				for (var x=0;x<inimigos.length;x++)
+				{
+					ini = inimigos[x];
+					ctxt.fillStyle = ini.cor;
+					ctxt.fillRect(ini.pos_x,ini.pos_y,ini.tam,ini.lar);
+					console.log(ini);
+				}
+			}
+			
+			function atzInimigos()
+			{
+				for (var x=0;x<inimigos.length;x++)
+				{
+					inimigos[x].pos_x += inimigo_vel;
+					inimigos[x].pos_y += mundo_vel;
+					
+					if (inimigos[x].pos_x - inimigos[x].lar < 0 || inimigos[x].pos_x + inimigos[x].lar > 815)
+					{	
+						inimigo_vel *= -1;
+					}				
+				}
+			}
 			
 			function atzJogador()
 			{
@@ -175,6 +212,7 @@
 			function desenha()
 			{
 				ctxt.clearRect(0, 0, cvs.width, cvs.height);
+				desInimigos();
 				desJogador();
 				if (atira)
 					desTiro();
@@ -184,6 +222,7 @@
 			
 			function atualiza()
 			{
+				atzInimigos();
 				atzJogador();
 				atzTiro();
 			}
