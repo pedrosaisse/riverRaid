@@ -17,36 +17,48 @@
 			var nvlAtual = 1;
 			var totNvls = 10;
 			
-			//dimensao imgJogador 50x55
-			var imgJogador = new Image();
-			imgJogador.src = "aviaoSimples.png";
+			//dimensao imgJogadorReto 26x39
+			var imgJogadorReto = new Image();
+			//dimensao imgJogadorDir 26x39
+			var imgJogadorDir = new Image();
+			//dimensao imgJogadorReto 26x39
+			var imgJogadorEsq = new Image();
+
+			imgJogadorReto.src = "imagens/raider.png";
+			imgJogadorDir.src  = "imagens/raiderDir.png";
+			imgJogadorEsq.src  = "imagens/raiderEsq.png";
 			
 			var imgInimigoAviao = new Image();
-			imgInimigoAviao.src = "iniAviaoSimples.png";
+			imgInimigoAviao.src = "imagens/jet.png";
+			
+			var imgJogador = new Image();
+			
+			var imgFuel = new Image();
+			imgFuel.src = "imagens/fuel.png";
 			
 			var jogador_x = cv.width / 2;
 			var jogador_y = cv.height * 0.75;
 			var jogador_tam = 50;
 			var jogador_lar = 15;
-			var jogador_vel = 5;
+			var jogador_vel = 1;
 			var jogador_comb = 100.0;
 			
 			var inimigos = [];
 			
-			//dimensao imgJogador 50x55
-			var tiro_x = jogador_x + (55 / 2);
+			var blocosFuel = [];
+			
+			var tiro_x = jogador_x;
 			var tiro_y = jogador_y;
 			
-			var mundo_vel = 0.03;
+			var mundo_vel = 0.1;
 			var inimigo_vel = 0.7;
 									
 			var moveEsq = false;
 			var moveDir = false;
 			var atira = false;
 			
-			var tiro_vel = 5;
-			
-			
+			var tiro_vel = 1;
+	
 			var _keyDown = function(e)
 			{
 				switch (e.keyCode)
@@ -84,14 +96,36 @@
 			document.addEventListener("keydown", _keyDown, true);
 			document.addEventListener("keyup",   _keyUp,   true);
 
-			inimigos = [{img: imgInimigoAviao, pos_x : 150,	pos_y : 150},{img: imgInimigoAviao,pos_x : 250,pos_y : 650}];
+			inimigos = [
+						{
+							img: imgInimigoAviao,
+							pos_x : 500,
+							pos_y : 50,
+							vel: 1,
+							visivel: true
+						},
+						{
+							img: imgInimigoAviao,
+							pos_x : 150,
+							pos_y : 150,
+							vel: 1,
+							visivel: true
+						},
+						{
+							img: imgInimigoAviao,
+							pos_x : 250,
+							pos_y : 50,
+							vel: 1,
+							visivel: true
+						}
+					];
 			
 			function desInimigos()
 			{
 				for (var x=0;x<inimigos.length;x++)
 				{
-					ctxt.drawImage(inimigos[x].img,inimigos[x].pos_x,inimigos[x].pos_y)
-					//console.log(inimigos[x]);
+					if (inimigos[x].visivel)
+							ctxt.drawImage(inimigos[x].img,inimigos[x].pos_x,inimigos[x].pos_y)
 				}
 			}
 			
@@ -99,27 +133,58 @@
 			{
 				for (var x=0;x<inimigos.length;x++)
 				{
-					inimigos[x].pos_x += inimigo_vel;
+					inimigos[x].pos_x += inimigos[x].vel;
 					inimigos[x].pos_y += mundo_vel;
 					
-					if (inimigos[x].pos_x - inimigos[x].lar < 0 || inimigos[x].pos_x + inimigos[x].lar > 815)
+					if (inimigos[x].pos_x < 0 || inimigos[x].pos_x + 50 > 815)
 					{	
-						inimigo_vel *= -1;
-					}				
+						inimigos[x].vel *= -1;
+					}
+					
+					if (inimigos[x].pos_y + 50 > 515)
+					{	
+						inimigos[x].visivel = false;
+					}
 				}
 			}
 			
+			blocosFuel = [
+							{
+								img:  imgFuel,
+								pos_x: 350,
+								pos_y: 50,
+								visivel: true
+							}
+						];
+						
+			function desFuel()
+			{
+				for (var x=0; x < blocosFuel.length; x++)
+					ctxt.drawImage(blocosFuel[x].img,blocosFuel[x].pos_x,blocosFuel[x].pos_y);
+			}
+			
+			function atzFuel()
+			{
+				for (var x=0; x < blocosFuel.length; x++)
+					blocosFuel[x].pos_y += 0.5;
+			}			
+				
 			function atzJogador()
 			{
+				if ((!moveEsq) && (!moveDir))
+					imgJogador = imgJogadorReto;
+					
 				if (moveEsq)
 				{
+					imgJogador = imgJogadorEsq;
 					jogador_x -= jogador_vel;
-					jogador_comb -= 0.05;
+					jogador_comb -= 0.11;
 				}
 				if (moveDir)
 				{
+					imgJogador = imgJogadorDir;
 					jogador_x += jogador_vel;
-					jogador_comb -= 0.05;
+					jogador_comb -= 0.11;
 				}
 
 				if (jogador_x < 5)
@@ -128,7 +193,21 @@
 					jogador_x = 5;
 				}
 				if (jogador_x > 815)
-					jogador_x = 815;				
+					jogador_x = 815;
+					
+				for (var x = 0; x < blocosFuel.length; x++)
+				{
+					if (blocosFuel[x].visivel == true)
+					{
+						if (((jogador_x >= blocosFuel[x].pos_x) && (jogador_x <= blocosFuel[x].pos_x + 40)) &&	((jogador_y <= blocosFuel[x].pos_y + 83) && (jogador_y >= blocosFuel[x].pos_y + 5)))
+						{
+							if (jogador_comb < 100)
+							{
+								jogador_comb *= 1.00099;
+							}
+						}
+					}
+				}
 			}
 			
 			function posJogador(pos_x,pos_y,imagem)
@@ -144,7 +223,7 @@
 			function posTiro(pos_x,pos_y)
 			{
 				ctxt.fillStyle = "black";
-				ctxt.fillRect(pos_x + 23,pos_y,5,10);
+				ctxt.fillRect(pos_x + 12,pos_y-10,3,10);
 			}
 			
 			function desTiro()
@@ -155,9 +234,28 @@
 			function atzTiro()
 			{
 				if (atira)
+				{
 					tiro_y -= tiro_vel;
+					for (var x = 0; x < inimigos[x].length; x++)
+					{
+						if (((tiro_x > inimigos[x].pos_x) && (tiro_x < inimigos[x].pos_x + 70))) //&& ((tiro_y >= inimigos[x].pos_y) && (tiro_y <= inimigos[x].pos_y + 40)))
+						{
+							inimigos[x].visivel = false;
+						}
+					}
+				}
 				if (tiro_y <= 0)
 					atira = false;
+					
+			}
+			var overGame = false;
+			function atzFimDeJogo()
+			{
+				if (jogador_comb <= 0)
+				{
+					//gameOver();
+					overGame = true;
+				}
 			}
 			
 			function desOdometro()
@@ -192,8 +290,8 @@
 				ctxt.strokeRect(840,25,150,200);
 				ctxt.font = "20px Arial";
 				ctxt.fillText("HUD",cvs.width*0.875,50);
-				ctxt.fillText("X:" + jogador_x,850,75);
-				ctxt.fillText("Y:" + jogador_y,850,100);
+				ctxt.fillText("X:" + tiro_x,850,75);
+				ctxt.fillText("Y:" + tiro_y,850,100);
 				ctxt.fillText("Comb.:" + jogador_comb,850,125);
 				ctxt.fillText("Vel Jogador:" + jogador_vel,850,150);
 				ctxt.fillText("Vel Mundo:" + mundo_vel,850,175);
@@ -204,6 +302,7 @@
 			function desenha()
 			{
 				ctxt.clearRect(0, 0, cvs.width, cvs.height);
+				desFuel();
 				desInimigos();
 				desJogador();
 				if (atira)
@@ -214,18 +313,35 @@
 			
 			function atualiza()
 			{
+				atzFuel();
 				atzInimigos();
 				atzJogador();
 				atzTiro();
+				atzFimDeJogo();
+			}
+			
+			function gameOver()
+			{
+				ctxt.clearRect(0, 0, cvs.width, cvs.height);
+				ctxt.fillStyle = "black";
+				ctxt.font = "20px Arial";
+				ctxt.fillText("MORREU",cvs.width/2,cvs.height/2);
+			}
+			
+			function game()
+			{
+				atualiza();
+				desenha();
+				setTimeout(game,1);
 			}
 			
 			function princ()
 			{
-				atualiza();
-				desenha();	
-				setTimeout(princ,1000);
+				game();
 			}
+			
 		</script>
 	</body>
 </html>
+
 
