@@ -12,10 +12,11 @@
 				ctxt = cv.getContext("2d");
 						
 			
-			var pontos = 100;
+			var pontos = 0;
 			
 			var nvlAtual = 1;
 			var totNvls = 10;
+			var gameOver = false;
 			
 			//dimensao imgJogadorReto 26x39
 			var imgJogadorReto = new Image();
@@ -46,8 +47,8 @@
 			
 			var blocosFuel = [];
 			
-			var tiro_x = jogador_x;
-			var tiro_y = jogador_y;
+			var tiro_x;
+			var tiro_y;
 			
 			var mundo_vel = 0.1;
 			var inimigo_vel = 0.7;
@@ -56,7 +57,7 @@
 			var moveDir = false;
 			var atira = false;
 			
-			var tiro_vel = 1;
+			var tiro_vel = 35;
 	
 			var _keyDown = function(e)
 			{
@@ -94,15 +95,15 @@
 						{
 							img: imgInimigoAviao,
 							pos_x : 500,
-							pos_y : 50,
+							pos_y : -50,
 							vel: 1,
 							visivel: true
 						},
 						{
 							img: imgInimigoAviao,
 							pos_x : 150,
-							pos_y : 150,
-							vel: 1,
+							pos_y : 10,
+							vel: 1.7,
 							visivel: true
 						},
 						{
@@ -118,8 +119,11 @@
 			{
 				for (var x=0;x<inimigos.length;x++)
 				{
-					if (inimigos[x].visivel)
+					if (!inimigos[x].acertou)
+					{
+						if (inimigos[x].visivel)
 							ctxt.drawImage(inimigos[x].img,inimigos[x].pos_x,inimigos[x].pos_y)
+					}
 				}
 			}
 			
@@ -135,9 +139,20 @@
 						inimigos[x].vel *= -1;
 					}
 					
+
+					
+					if (((inimigos[x].pos_x  <=  tiro_x) && (inimigos[x].pos_x + 70 >=  tiro_x + 12)) && ((inimigos[x].pos_y + 40 >= tiro_y) && (inimigos[x].pos_y <= tiro_y)))
+					{
+						pontos += 1;
+						inimigos.splice(x,1);
+						atira = false;
+						break;
+					}
+					
 					if (inimigos[x].pos_y + 50 > 515)
 					{	
-						inimigos[x].visivel = false;
+						inimigos.splice(x,1);
+						break;
 					}
 				}
 			}
@@ -146,8 +161,8 @@
 							{
 								img:  imgFuel,
 								pos_x: 350,
-								pos_y: 50,
-								visivel: true
+								pos_y: -50,
+								visivel: false
 							}
 						];
 						
@@ -166,9 +181,24 @@
 				{
 					blocosFuel[x].pos_y += 0.5;
 					
+					if (blocosFuel[x].pos_y + 83 > 0)
+						blocosFuel[x].visivel = true;
+					
+					
+					
+					if (((blocosFuel[x].pos_x  <=  tiro_x) && (blocosFuel[x].pos_x + 70 >=  tiro_x + 12)) && ((blocosFuel[x].pos_y + 40 >= tiro_y) && (blocosFuel[x].pos_y <= tiro_y)))
+					{
+						pontos += 1;
+						blocosFuel.splice(x,1);
+						atira = false;
+						break;
+					}
+					
+					//deve sempre ser a ultima acao da funcao
 					if (blocosFuel[x].pos_y + 83 > 515)
 					{	
-						blocosFuel[x].visivel = false;
+						blocosFuel.splice(x,1);
+						break;
 					}
 				}
 			}			
@@ -194,7 +224,7 @@
 				{
 					moveEsq = false;
 					jogador_x = 5;
-					//gameOver
+					gameOver = true;
 				}
 				if (jogador_x > 815)
 					jogador_x = 815;
@@ -207,7 +237,7 @@
 						if (((jogador_x >= inimigos[x].pos_x) && (jogador_x <= inimigos[x].pos_x + 70)) &&	((jogador_y <= inimigos[x].pos_y + 40) && (jogador_y >= inimigos[x].pos_y)))
 						{
 							pontos = 0;
-							//gameOver
+							gameOver = true;
 						}
 					}
 				}
@@ -220,7 +250,7 @@
 						{
 							if (jogador_comb < 100)
 							{
-								jogador_comb *= 1.00099;
+								jogador_comb += 0.1;
 							}
 						}
 					}
@@ -253,17 +283,9 @@
 				if (atira)
 				{
 					tiro_y -= tiro_vel;
-					for (var x = 0; x < inimigos[x].length; x++)
-					{
-						if (((tiro_x + 12 >= inimigos[x].pos_x) && (tiro_x + 12 <= inimigos[x].pos_x + 70))) //&& ((tiro_y >= inimigos[x].pos_y) && (tiro_y <= inimigos[x].pos_y + 40)))
-						{
-							pontos += 100;
-						}
-					}
 				}
 				if (tiro_y <= 0)
 					atira = false;
-					
 			}
 			
 			function desOdometro()
@@ -326,12 +348,23 @@
 				atzJogador();
 				atzTiro();
 			}
+
+			function fim()
+			{
+				ctxt.clearRect(0, 0, cvs.width, cvs.height);
+				ctxt.font = "20px Arial";
+				ctxt.fillText("MORREU",cvs.width/2,cvs.height/2);
+			}
 			
 			function game()
 			{
+				
 				atualiza();
 				desenha();
-				setTimeout(game,1);
+				if (gameOver == false)
+					setTimeout(game,1);
+				else
+					fim();
 			}
 			
 			function princ()
