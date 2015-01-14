@@ -12,10 +12,10 @@
 				ctxt = cv.getContext("2d");
 						
 			
-			var pontos = 0;
+			var pontos = 1;
 			
-			var nvlAtual = 1;
-			var totNvls = 10;
+			var nvlAtual = 1.0;
+			var totNvls = 10.0;
 			var gameOver = false;
 			
 			//dimensao imgJogadorReto 26x39
@@ -51,7 +51,7 @@
 			var tiro_y;
 			
 			var mundo_vel = 0.1;
-			var inimigo_vel = 0.7;
+			var inimigo_vel = 1;
 									
 			var moveEsq = false;
 			var moveDir = false;
@@ -112,6 +112,27 @@
 							pos_y : 50,
 							vel: 1,
 							visivel: true
+						},
+						{
+							img: imgInimigoAviao,
+							pos_x : 70,
+							pos_y : 5,
+							vel: 1,
+							visivel: true
+						},
+						{
+							img: imgInimigoAviao,
+							pos_x : 600,
+							pos_y : -150,
+							vel: 1,
+							visivel: true
+						},
+						{
+							img: imgInimigoAviao,
+							pos_x : 250,
+							pos_y : -5,
+							vel: 1,
+							visivel: true
 						}
 					];
 			
@@ -145,7 +166,7 @@
 					{
 						pontos += 1;
 						inimigos.splice(x,1);
-						atira = false;
+						resetTiro();
 						break;
 					}
 					
@@ -160,8 +181,14 @@
 			blocosFuel = [
 							{
 								img:  imgFuel,
-								pos_x: 350,
+								pos_x: 150,
 								pos_y: -50,
+								visivel: false
+							},
+							{
+								img:  imgFuel,
+								pos_x: 550,
+								pos_y: -150,
 								visivel: false
 							}
 						];
@@ -190,7 +217,7 @@
 					{
 						pontos += 1;
 						blocosFuel.splice(x,1);
-						atira = false;
+						resetTiro();
 						break;
 					}
 					
@@ -227,8 +254,10 @@
 					gameOver = true;
 				}
 				if (jogador_x > 815)
+				{
 					jogador_x = 815;
-					//gameOver
+					gameOver = true;
+				}
 					
 				for (var x = 0; x < inimigos.length; x++)
 				{
@@ -250,7 +279,7 @@
 						{
 							if (jogador_comb < 100)
 							{
-								jogador_comb += 0.1;
+								jogador_comb += 0.3;
 							}
 						}
 					}
@@ -271,6 +300,13 @@
 			{
 				ctxt.fillStyle = "black";
 				ctxt.fillRect(pos_x + 12,pos_y-10,3,10);
+			}
+			
+			function resetTiro()
+			{
+				atira = false;
+				tiro_x = 0;
+				tiro_y = 0;
 			}
 			
 			function desTiro()
@@ -311,6 +347,9 @@
 					ctxt.fillStyle = "red";
 				}
 				
+				if (jogador_comb <= 0)
+					gameOver = true;
+				
 				ctxt.fillRect(201,526,(jogador_comb * 6) ,63);
 			}
 			
@@ -322,7 +361,7 @@
 				ctxt.fillText("HUD",cvs.width*0.875,50);
 				ctxt.fillText("X:" + tiro_x,850,75);
 				ctxt.fillText("Y:" + tiro_y,850,100);
-				ctxt.fillText("Comb.:" + jogador_comb,850,125);
+				ctxt.fillText("Nivel:" + nvlAtual,850,125);
 				ctxt.fillText("Vel Jogador:" + jogador_vel,850,150);
 				ctxt.fillText("Vel Mundo:" + mundo_vel,850,175);
 				ctxt.fillText("Pontos:" + pontos,850,200);
@@ -341,8 +380,36 @@
 				desOdometro();
 			}
 			
+			function atzNivel()
+			{
+				var atz = false;
+				
+				if (pontos % 5 == 0)
+				{
+					nvlAtual++;
+					atz = true;
+				}
+			
+				if (atz)
+				{
+					if (nvlAtual < totNvls)
+					{
+						inimigo_vel += nvlAtual / totNvls;
+						mundo_vel += 2 * nvlAtual / totNvls;
+					}
+					else if (nvlAtual = totNvls)
+					{
+						inimigo_vel *= 5;
+						mundo_vel *= 5;
+					} else
+						vitoria();
+					atz = false;
+				}
+			}
+			
 			function atualiza()
 			{
+				atzNivel();
 				atzFuel();
 				atzInimigos();
 				atzJogador();
