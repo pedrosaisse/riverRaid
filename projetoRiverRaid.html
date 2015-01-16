@@ -5,6 +5,7 @@
 	
 	<body onLoad="princ()">
 		<canvas id="cvs" width="1000" height="600" style="border:1px solid #000000;"></canvas>
+		<div id="instrucoes" style="font-style: bold; font-size: 25px;"> Utilize as setas para movimentar o avião e a tecla A para atirar!!</div>
 		<script>
 			var cv = document.getElementById("cvs");
 			var  ctxt;
@@ -28,13 +29,35 @@
 			imgJogadorDir.src  = "imagens/raiderDir.png";
 			imgJogadorEsq.src  = "imagens/raiderEsq.png";
 			
+			var imgJogador = new Image();
+			
+			
+			
+			// Inimigos
 			var imgInimigoAviao = new Image();
 			imgInimigoAviao.src = "imagens/jet.png";
 			
-			var imgJogador = new Image();
+			var imgInimigoHeli = new Image();
+			imgInimigoHeli.src = "imagens/heli.png";
 			
+			var imgInimigoBarco = new Image();
+			imgInimigoBarco.src = "imagens/barco.png";
+			
+			
+			// Cenario
+			var imgCasa = new Image();
+			imgCasa.src = "imagens/casa.png";
+			
+			var imgArvore = new Image();
+			imgArvore.src = "imagens/arvore.png";
+			
+			var fundo = new Image();
+			fundo.src = "imagens/fundo.png";
+			
+			// Combustivel
 			var imgFuel = new Image();
 			imgFuel.src = "imagens/fuel.png";
+			
 			
 			var jogador_x = cv.width / 2;
 			var jogador_y = cv.height * 0.75;
@@ -55,6 +78,8 @@
 									
 			var moveEsq = false;
 			var moveDir = false;
+			var moveCima = false;
+			var moveBaixo = false;
 			var atira = false;
 			
 			var tiro_vel = 35;
@@ -68,6 +93,14 @@
 						break;
 					case 39: // seta direita
 						moveDir = true;
+						break;
+				
+					case 38: // seta cima
+						moveCima = true;
+						break;
+					
+					case 40: // seta baixo
+						moveBaixo = true;
 						break;
 					
 					case 65: //botao A
@@ -87,54 +120,82 @@
 					case 39:
 						moveDir = false;
 						break;
+					
+					case 38: // seta cima
+						moveCima = false;
+						break;
+					
+					case 40: // seta baixo
+						moveBaixo = false;
+						break;
+				
+				
 				}				
 			}
 			document.addEventListener("keydown", _keyDown, true);
 			document.addEventListener("keyup",   _keyUp,   true);
-			inimigos = [
-						{
-							img: imgInimigoAviao,
-							pos_x : 500,
-							pos_y : -50,
-							vel: 1,
-							visivel: true
-						},
-						{
-							img: imgInimigoAviao,
-							pos_x : 150,
-							pos_y : 10,
-							vel: 1.7,
-							visivel: true
-						},
-						{
-							img: imgInimigoAviao,
-							pos_x : 250,
-							pos_y : 50,
-							vel: 1,
-							visivel: true
-						},
-						{
-							img: imgInimigoAviao,
-							pos_x : 70,
-							pos_y : 5,
-							vel: 1,
-							visivel: true
-						},
-						{
-							img: imgInimigoAviao,
-							pos_x : 600,
-							pos_y : -150,
-							vel: 1,
-							visivel: true
-						},
-						{
-							img: imgInimigoAviao,
-							pos_x : 250,
-							pos_y : -5,
-							vel: 1,
-							visivel: true
+			
+			
+			
+			function criaFuel()
+			{
+				var i,quant;
+				quant = blocosFuel.length;
+				
+				if (quant < 4)
+				{
+					for (var q = 0; q <= 1; q++)
+					{
+						var x = Math.floor((Math.random() * 800) + 150);							
+						var y = Math.floor((Math.random() * 250) - 200);
+						
+						if (x + 40 < 800) 
+							blocosFuel.push({img: imgFuel, pos_x: x, pos_y: y, visivel: false});
+					}
+				}
+			}
+			
+			function criaInimigos()
+			{
+				
+				var opcoes = [imgInimigoAviao,imgInimigoBarco,imgInimigoHeli];
+				var i,quant;
+				
+				quant = inimigos.length;
+
+				if (quant < 5)
+				{
+					for (var q = 0; q <= 15; q++)
+					{
+						i = Math.floor(Math.random() * 3);
+						var x = Math.floor((Math.random() * 800) + 150);							
+						var y = Math.floor((Math.random() * 250) - 200);
+						
+						
+							switch(i)
+							{
+								case(0):
+										{
+											if (x + 72 < 800)
+												inimigos.push({img: opcoes[i],pos_x: x,pos_y: y, vel: 1, visivel: true});
+											break;
+										}
+								case(1):
+										{
+											if (x + 114 < 800)
+												inimigos.push({img: opcoes[i],pos_x: x,pos_y: y, vel: 1, visivel: true});
+											break;
+										}
+								case(2):
+										{
+											if (x + 71 < 800)
+												inimigos.push({img: opcoes[i],pos_x: x,pos_y: y, vel: 1, visivel: true});
+											break;
+										}
+							}
 						}
-					];
+					}
+				}
 			
 			function desInimigos()
 			{
@@ -155,7 +216,7 @@
 					inimigos[x].pos_x += inimigos[x].vel;
 					inimigos[x].pos_y += mundo_vel;
 					
-					if (inimigos[x].pos_x < 0 || inimigos[x].pos_x + 50 > 815)
+					if (inimigos[x].pos_x < 150 || inimigos[x].pos_x + 50 > 815)
 					{	
 						inimigos[x].vel *= -1;
 					}
@@ -177,22 +238,7 @@
 					}
 				}
 			}
-			
-			blocosFuel = [
-							{
-								img:  imgFuel,
-								pos_x: 150,
-								pos_y: -50,
-								visivel: false
-							},
-							{
-								img:  imgFuel,
-								pos_x: 550,
-								pos_y: -150,
-								visivel: false
-							}
-						];
-						
+									
 			function desFuel()
 			{
 				for (var x=0; x < blocosFuel.length; x++)
@@ -234,7 +280,7 @@
 			{
 				if ((!moveEsq) && (!moveDir))
 					imgJogador = imgJogadorReto;
-					
+				
 				if (moveEsq)
 				{
 					imgJogador = imgJogadorEsq;
@@ -247,7 +293,22 @@
 					jogador_x += jogador_vel;
 					jogador_comb -= 0.11;
 				}
-				if (jogador_x < 5)
+				
+				if (moveCima)
+				{
+					imgJogador = imgJogadorReto;
+					jogador_y -= jogador_vel;
+					jogador_comb -= 0.11;
+				}
+				if (moveBaixo)
+				{
+					imgJogador = imgJogadorReto;
+					jogador_y += jogador_vel;
+					jogador_comb -= 0.11;
+				}
+
+				
+				if (jogador_x < 150)
 				{
 					moveEsq = false;
 					jogador_x = 5;
@@ -355,22 +416,24 @@
 			
 			function infos()
 			{
-				ctxt.fillStyle = "black";
-				ctxt.strokeRect(840,25,150,200);
-				ctxt.font = "20px Arial";
-				ctxt.fillText("HUD",cvs.width*0.875,50);
-				ctxt.fillText("X:" + tiro_x,850,75);
-				ctxt.fillText("Y:" + tiro_y,850,100);
-				ctxt.fillText("Nivel:" + nvlAtual,850,125);
-				ctxt.fillText("Vel Jogador:" + jogador_vel,850,150);
-				ctxt.fillText("Vel Mundo:" + mundo_vel,850,175);
-				ctxt.fillText("Pontos:" + pontos,850,200);
+				ctxt.fillStyle = "white";
+				ctxt.font = "30px Arial";
+				ctxt.fillText("Pontos",875,50);
+				ctxt.fillText(pontos,880,80);
 				
 			}
+			function desenhaCenario()
+			{
+				ctxt.drawImage(fundo,0,0);
+				ctxt.drawImage(imgCasa,40,200);
+				ctxt.drawImage(imgArvore,10,420);
+			}
+			
 			
 			function desenha()
 			{
 				ctxt.clearRect(0, 0, cvs.width, cvs.height);
+				desenhaCenario();
 				desFuel();
 				desInimigos();
 				desJogador();
@@ -380,36 +443,8 @@
 				desOdometro();
 			}
 			
-			function atzNivel()
-			{
-				var atz = false;
-				
-				if (pontos % 5 == 0)
-				{
-					nvlAtual++;
-					atz = true;
-				}
-			
-				if (atz)
-				{
-					if (nvlAtual < totNvls)
-					{
-						inimigo_vel += nvlAtual / totNvls;
-						mundo_vel += 2 * nvlAtual / totNvls;
-					}
-					else if (nvlAtual = totNvls)
-					{
-						inimigo_vel *= 5;
-						mundo_vel *= 5;
-					} else
-						vitoria();
-					atz = false;
-				}
-			}
-			
 			function atualiza()
 			{
-				atzNivel();
 				atzFuel();
 				atzInimigos();
 				atzJogador();
@@ -419,14 +454,17 @@
 			function fim()
 			{
 				ctxt.clearRect(0, 0, cvs.width, cvs.height);
-				ctxt.font = "20px Arial";
-				ctxt.fillText("MORREU",cvs.width/2,cvs.height/2);
+				ctxt.font = "50px Arial";
+				ctxt.fillStyle = "black";
+				ctxt.fillText("AHN NÃÃÃOOOO MORRI!!",200,cvs.height/2);
 			}
 			
 			function game()
 			{
 				
 				atualiza();
+				criaInimigos();
+				criaFuel();
 				desenha();
 				if (gameOver == false)
 					setTimeout(game,1);
